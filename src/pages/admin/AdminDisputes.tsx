@@ -8,7 +8,7 @@ import { mockDisputes } from "@/lib/adminMockData";
 type DisputeStatus = "open" | "resolved" | "refunded";
 
 export default function AdminDisputes() {
-  const [disputes, setDisputes] = useState(mockDisputes);
+  const [disputes, setDisputes] = useState(mockDisputes.map(d => ({ ...d, status: d.status as DisputeStatus })));
 
   const updateStatus = (id: string, status: DisputeStatus) => {
     setDisputes((prev) => prev.map((d) => (d.id === id ? { ...d, status } : d)));
