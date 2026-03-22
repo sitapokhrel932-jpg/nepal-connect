@@ -3,9 +3,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AdminAuthProvider } from "@/lib/adminAuth";
+import { AuthProvider } from "@/lib/auth";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Login from "./pages/auth/Login.tsx";
+import Signup from "./pages/auth/Signup.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
@@ -22,10 +24,12 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AdminAuthProvider>
+      <AuthProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -35,11 +39,10 @@ const App = () => (
               <Route path="disputes" element={<AdminDisputes />} />
               <Route path="earnings" element={<AdminEarnings />} />
             </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </AdminAuthProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
