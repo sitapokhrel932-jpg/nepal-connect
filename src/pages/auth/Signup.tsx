@@ -27,6 +27,7 @@ export default function Signup() {
     if (error) {
       setError(error.message);
     } else {
+      toast.success("Account created successfully!");
       navigate("/");
     }
   };

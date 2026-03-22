@@ -25,6 +25,7 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
+      toast.success("Welcome back!");
       navigate("/");
     }
   };
