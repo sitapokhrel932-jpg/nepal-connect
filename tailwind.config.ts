@@ -9,8 +9,11 @@ export default {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1200px",
       },
+    },
+    fontFamily: {
+      sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
     },
     extend: {
       colors: {
@@ -46,6 +49,17 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        amber: {
+          glow: "hsl(var(--amber-glow))",
+        },
+        surface: {
+          warm: "hsl(var(--surface-warm))",
+          card: "hsl(var(--surface-card))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
