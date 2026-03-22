@@ -27,7 +27,7 @@ const links = [
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { logout } = useAdminAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
