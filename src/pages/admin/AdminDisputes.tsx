@@ -2,19 +2,24 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function AdminDisputes() {
   const [disputes, setDisputes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const fetchDisputes = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("disputes")
       .select("*, bookings(booking_number, city, proposed_price, final_price)")
       .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Failed to load disputes: " + error.message);
+    }
     setDisputes(data || []);
     setLoading(false);
   };
@@ -22,8 +27,15 @@ export default function AdminDisputes() {
   useEffect(() => { fetchDisputes(); }, []);
 
   const updateStatus = async (id: string, status: "open" | "resolved") => {
-    await supabase.from("disputes").update({ status }).eq("id", id);
-    fetchDisputes();
+    setActionLoading(id);
+    const { error } = await supabase.from("disputes").update({ status }).eq("id", id);
+    setActionLoading(null);
+    if (error) {
+      toast.error("Failed to update: " + error.message);
+    } else {
+      toast.success(`Dispute marked as ${status}`);
+      fetchDisputes();
+    }
   };
 
   if (loading) return <Skeleton className="h-64 w-full" />;
@@ -58,7 +70,10 @@ export default function AdminDisputes() {
                 </div>
                 {d.status === "open" && (
                   <div className="flex gap-2 pt-1">
-                    <Button size="sm" onClick={() => updateStatus(d.id, "resolved")}>Mark Resolved</Button>
+                    <Button size="sm" disabled={actionLoading === d.id} onClick={() => updateStatus(d.id, "resolved")}>
+                      {actionLoading === d.id ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                      Mark Resolved
+                    </Button>
                   </div>
                 )}
               </CardContent>

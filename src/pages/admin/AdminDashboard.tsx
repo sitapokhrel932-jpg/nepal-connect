@@ -5,10 +5,10 @@ import { Users, Briefcase, CalendarCheck, DollarSign, TrendingUp } from "lucide-
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const statusColor: Record<string, string> = {
   completed: "bg-green-100 text-green-800",
-  active: "bg-blue-100 text-blue-800",
   accepted: "bg-blue-100 text-blue-800",
   pending: "bg-amber-100 text-amber-800",
   disputed: "bg-red-100 text-red-800",
@@ -22,24 +22,28 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function fetchData() {
-      const [profilesRes, providersRes, bookingsRes] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("provider_profiles").select("id", { count: "exact", head: true }),
-        supabase.from("bookings").select("*").order("created_at", { ascending: false }).limit(5),
-      ]);
+      try {
+        const [profilesRes, providersRes, bookingsRes, completedRes] = await Promise.all([
+          supabase.from("profiles").select("id", { count: "exact", head: true }),
+          supabase.from("provider_profiles").select("id", { count: "exact", head: true }),
+          supabase.from("bookings").select("*").order("created_at", { ascending: false }).limit(5),
+          supabase.from("bookings").select("final_price, commission").eq("status", "completed"),
+        ]);
 
-      const allBookings = await supabase.from("bookings").select("final_price, commission").eq("status", "completed");
-      const revenue = allBookings.data?.reduce((sum, b) => sum + (b.final_price || 0), 0) || 0;
-      const commission = allBookings.data?.reduce((sum, b) => sum + (b.commission || 0), 0) || 0;
+        const revenue = completedRes.data?.reduce((sum, b) => sum + (b.final_price || 0), 0) || 0;
+        const commission = completedRes.data?.reduce((sum, b) => sum + (b.commission || 0), 0) || 0;
 
-      setStats({
-        users: profilesRes.count || 0,
-        providers: providersRes.count || 0,
-        bookings: bookingsRes.data?.length || 0,
-        revenue,
-        commission,
-      });
-      setRecentBookings(bookingsRes.data || []);
+        setStats({
+          users: profilesRes.count || 0,
+          providers: providersRes.count || 0,
+          bookings: (bookingsRes.data || []).length,
+          revenue,
+          commission,
+        });
+        setRecentBookings(bookingsRes.data || []);
+      } catch (err: any) {
+        toast.error("Failed to load dashboard data");
+      }
       setLoading(false);
     }
     fetchData();

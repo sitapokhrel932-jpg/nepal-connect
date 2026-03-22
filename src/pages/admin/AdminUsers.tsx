@@ -4,13 +4,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => {
+    supabase.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data, error }) => {
+      if (error) toast.error("Failed to load users: " + error.message);
       setUsers(data || []);
       setLoading(false);
     });
