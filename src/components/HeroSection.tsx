@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronDown, Search } from "lucide-react";
 import heroImage from "@/assets/hero-illustration.jpg";
@@ -11,15 +12,14 @@ const cities = [
 const HeroSection = () => {
   const [selectedCity, setSelectedCity] = useState("Kathmandu");
   const [cityOpen, setCityOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
-      {/* Background subtle pattern */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] to-transparent" />
       
       <div className="container-tight section-padding relative">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left content */}
           <div className="max-w-xl">
             <div className="animate-reveal-up">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide mb-6">
@@ -38,9 +38,7 @@ const HeroSection = () => {
               From plumbers to electricians — find trusted local service providers, set your own price, and get help when you need it.
             </p>
 
-            {/* City selector + Search */}
             <div className="flex flex-col sm:flex-row gap-3 animate-reveal-up stagger-3">
-              {/* City dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setCityOpen(!cityOpen)}
@@ -67,13 +65,17 @@ const HeroSection = () => {
                 )}
               </div>
 
-              <Button variant="hero" size="lg" className="h-12 px-6 rounded-xl text-base gap-2">
+              <Button
+                variant="hero"
+                size="lg"
+                className="h-12 px-6 rounded-xl text-base gap-2"
+                onClick={() => navigate("/signup")}
+              >
                 <Search className="w-4 h-4" />
                 Find Services
               </Button>
             </div>
 
-            {/* Trust stats */}
             <div className="flex items-center gap-6 mt-10 animate-reveal-up stagger-4">
               <div>
                 <p className="text-2xl font-bold text-foreground tabular-nums">2,400+</p>
@@ -92,7 +94,6 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right image */}
           <div className="relative animate-reveal-up stagger-2 hidden lg:block">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary/10">
               <img
@@ -103,7 +104,6 @@ const HeroSection = () => {
               />
               <div className="absolute inset-0 ring-1 ring-inset ring-foreground/5 rounded-2xl" />
             </div>
-            {/* Floating card */}
             <div className="absolute -bottom-4 -left-4 bg-surface-card rounded-xl p-4 shadow-lg border border-border/50 animate-slide-in-left stagger-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">

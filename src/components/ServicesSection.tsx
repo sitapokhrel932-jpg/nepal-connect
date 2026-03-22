@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { 
   Wrench, Zap, Droplets, Hammer, Paintbrush, Wind,
   Monitor, Truck
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 const services = [
   { icon: Wrench, label: "Mechanic", desc: "Vehicle & appliance repair", color: "bg-blue-50 text-blue-600" },
@@ -18,6 +20,7 @@ const services = [
 const ServicesSection = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -27,6 +30,11 @@ const ServicesSection = () => {
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
+
+  const handleServiceClick = (label: string) => {
+    toast.info(`${label} service selected — Sign up to book a provider!`);
+    navigate("/signup");
+  };
 
   return (
     <section id="services" className="py-20 md:py-28" ref={ref}>
@@ -44,6 +52,7 @@ const ServicesSection = () => {
           {services.map((service, i) => (
             <button
               key={service.label}
+              onClick={() => handleServiceClick(service.label)}
               className={`group flex flex-col items-center gap-3 p-6 rounded-2xl bg-surface-card border border-border/50 
                 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 
                 active:scale-[0.97] transition-all duration-200 cursor-pointer
