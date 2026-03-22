@@ -50,6 +50,17 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        amber: {
+          glow: "hsl(var(--amber-glow))",
+        },
+        surface: {
+          warm: "hsl(var(--surface-warm))",
+          card: "hsl(var(--surface-card))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
