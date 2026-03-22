@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -29,12 +30,14 @@ const CTASection = () => {
               Join thousands of Nepalis who trust SewaHub for their home service needs. Book your first service today.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button variant="hero" size="lg" className="rounded-xl text-base gap-2 h-12 px-8">
-                Book a Service
-                <ArrowRight className="w-4 h-4" />
+              <Button variant="hero" size="lg" className="rounded-xl text-base gap-2 h-12 px-8" asChild>
+                <Link to="/signup">
+                  Book a Service
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </Button>
-              <Button variant="hero-outline" size="lg" className="rounded-xl text-base h-12 px-8 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
-                Register as Provider
+              <Button variant="hero-outline" size="lg" className="rounded-xl text-base h-12 px-8 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+                <Link to="/signup">Register as Provider</Link>
               </Button>
             </div>
           </div>

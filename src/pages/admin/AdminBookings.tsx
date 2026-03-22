@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const statusColor: Record<string, string> = {
   completed: "bg-green-100 text-green-800",
@@ -22,7 +23,8 @@ export default function AdminBookings() {
       .from("bookings")
       .select("*, services(name)")
       .order("created_at", { ascending: false })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) toast.error("Failed to load bookings: " + error.message);
         setBookings(data || []);
         setLoading(false);
       });

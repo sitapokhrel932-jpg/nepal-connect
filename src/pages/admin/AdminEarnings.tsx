@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DollarSign, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function AdminEarnings() {
   const [loading, setLoading] = useState(true);
@@ -12,12 +13,18 @@ export default function AdminEarnings() {
   const [completedBookings, setCompletedBookings] = useState<any[]>([]);
 
   useEffect(() => {
-    async function fetch() {
-      const { data } = await supabase
+    async function fetchData() {
+      const { data, error } = await supabase
         .from("bookings")
         .select("*, services(name)")
         .eq("status", "completed")
         .order("created_at", { ascending: false });
+
+      if (error) {
+        toast.error("Failed to load earnings: " + error.message);
+        setLoading(false);
+        return;
+      }
 
       const bookings = data || [];
       setCompletedBookings(bookings);
@@ -25,7 +32,7 @@ export default function AdminEarnings() {
       setTotalCommission(bookings.reduce((sum, b) => sum + (b.commission || 0), 0));
       setLoading(false);
     }
-    fetch();
+    fetchData();
   }, []);
 
   if (loading) return <Skeleton className="h-64 w-full" />;

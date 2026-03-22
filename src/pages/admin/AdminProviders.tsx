@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type ProviderStatus = Database["public"]["Enums"]["provider_status"];
@@ -12,12 +14,16 @@ type ProviderStatus = Database["public"]["Enums"]["provider_status"];
 export default function AdminProviders() {
   const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const fetchProviders = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("provider_profiles")
       .select("*, profiles(full_name), services(name)")
       .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Failed to load providers: " + error.message);
+    }
     setProviders(data || []);
     setLoading(false);
   };
@@ -25,8 +31,15 @@ export default function AdminProviders() {
   useEffect(() => { fetchProviders(); }, []);
 
   const updateStatus = async (id: string, status: ProviderStatus) => {
-    await supabase.from("provider_profiles").update({ status }).eq("id", id);
-    fetchProviders();
+    setActionLoading(id);
+    const { error } = await supabase.from("provider_profiles").update({ status }).eq("id", id);
+    setActionLoading(null);
+    if (error) {
+      toast.error("Failed to update: " + error.message);
+    } else {
+      toast.success(`Provider ${status} successfully`);
+      fetchProviders();
+    }
   };
 
   if (loading) return <Skeleton className="h-64 w-full" />;
@@ -74,13 +87,19 @@ export default function AdminProviders() {
                     <TableCell>
                       <div className="flex gap-1">
                         {p.status === "pending" && (
-                          <Button size="sm" onClick={() => updateStatus(p.id, "approved")}>Approve</Button>
+                          <Button size="sm" disabled={actionLoading === p.id} onClick={() => updateStatus(p.id, "approved")}>
+                            {actionLoading === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Approve"}
+                          </Button>
                         )}
                         {p.status === "approved" && (
-                          <Button size="sm" variant="destructive" onClick={() => updateStatus(p.id, "suspended")}>Suspend</Button>
+                          <Button size="sm" variant="destructive" disabled={actionLoading === p.id} onClick={() => updateStatus(p.id, "suspended")}>
+                            {actionLoading === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Suspend"}
+                          </Button>
                         )}
                         {p.status === "suspended" && (
-                          <Button size="sm" onClick={() => updateStatus(p.id, "approved")}>Activate</Button>
+                          <Button size="sm" disabled={actionLoading === p.id} onClick={() => updateStatus(p.id, "approved")}>
+                            {actionLoading === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Activate"}
+                          </Button>
                         )}
                       </div>
                     </TableCell>
