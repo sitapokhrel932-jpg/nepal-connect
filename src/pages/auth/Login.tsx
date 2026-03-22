@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,17 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Wrench, AlertCircle } from "lucide-react";
 
-export default function AdminLogin() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, isAdmin, user } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user && isAdmin) navigate("/admin");
-  }, [user, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,16 +23,10 @@ export default function AdminLogin() {
     setLoading(false);
     if (error) {
       setError(error.message);
+    } else {
+      navigate("/");
     }
-    // The useEffect above will redirect if they're admin
-    // If they're authenticated but not admin, show error
   };
-
-  useEffect(() => {
-    if (user && !isAdmin && !loading) {
-      setError("You don't have admin privileges");
-    }
-  }, [user, isAdmin, loading]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -46,8 +36,8 @@ export default function AdminLogin() {
             <Wrench className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">SewaHub Admin</h1>
-            <p className="text-sm text-muted-foreground mt-1">Sign in to manage the platform</p>
+            <h1 className="text-xl font-bold text-foreground">Welcome to SewaHub</h1>
+            <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
           </div>
         </CardHeader>
         <CardContent>
@@ -60,7 +50,7 @@ export default function AdminLogin() {
             )}
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="admin@sewahub.com" value={email} onChange={e => setEmail(e.target.value)} required />
+              <Input id="email" type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
@@ -69,6 +59,10 @@ export default function AdminLogin() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-primary font-medium hover:underline">Sign Up</Link>
+            </p>
           </form>
         </CardContent>
       </Card>

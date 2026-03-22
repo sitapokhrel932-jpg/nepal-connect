@@ -1,12 +1,13 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAdminAuth } from "@/lib/adminAuth";
+import { useAuth } from "@/lib/auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export default function AdminLayout() {
-  const { isAuthenticated } = useAdminAuth();
+  const { user, isAdmin, loading } = useAuth();
 
-  if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
+  if (!user || !isAdmin) return <Navigate to="/admin/login" replace />;
 
   return (
     <SidebarProvider>

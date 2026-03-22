@@ -1,6 +1,6 @@
 import { LayoutDashboard, Users, Briefcase, CalendarCheck, AlertTriangle, DollarSign, LogOut, Wrench } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useAdminAuth } from "@/lib/adminAuth";
+import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -27,11 +27,11 @@ const links = [
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { logout } = useAdminAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/admin/login");
   };
 
