@@ -30,8 +30,8 @@ export function AdminSidebar() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/admin/login");
   };
 
