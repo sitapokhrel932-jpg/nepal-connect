@@ -1,92 +1,75 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { mockBookings } from "@/lib/adminMockData";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusColor: Record<string, string> = {
   completed: "bg-green-100 text-green-800",
-  active: "bg-blue-100 text-blue-800",
+  accepted: "bg-blue-100 text-blue-800",
   pending: "bg-amber-100 text-amber-800",
   disputed: "bg-red-100 text-red-800",
   cancelled: "bg-gray-100 text-gray-600",
 };
 
-const allCities = ["All", ...Array.from(new Set(mockBookings.map((b) => b.city)))];
-const allServices = ["All", ...Array.from(new Set(mockBookings.map((b) => b.service)))];
-const allStatuses = ["All", "pending", "active", "completed", "disputed", "cancelled"];
-
 export default function AdminBookings() {
-  const [cityFilter, setCityFilter] = useState("All");
-  const [serviceFilter, setServiceFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = useMemo(() => {
-    return mockBookings.filter((b) => {
-      if (cityFilter !== "All" && b.city !== cityFilter) return false;
-      if (serviceFilter !== "All" && b.service !== serviceFilter) return false;
-      if (statusFilter !== "All" && b.status !== statusFilter) return false;
-      return true;
-    });
-  }, [cityFilter, serviceFilter, statusFilter]);
+  useEffect(() => {
+    supabase
+      .from("bookings")
+      .select("*, services(name)")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setBookings(data || []);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <Skeleton className="h-64 w-full" />;
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Bookings</h1>
-
-      <div className="flex flex-wrap gap-3">
-        <Select value={cityFilter} onValueChange={setCityFilter}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="City" /></SelectTrigger>
-          <SelectContent>{allCities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-        </Select>
-        <Select value={serviceFilter} onValueChange={setServiceFilter}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="Service" /></SelectTrigger>
-          <SelectContent>{allServices.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>{allStatuses.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-        </Select>
-      </div>
-
       <Card className="shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">{filtered.length} bookings</CardTitle>
+          <CardTitle className="text-base">{bookings.length} bookings</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Provider</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>City</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Commission</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((b) => (
-                <TableRow key={b.id}>
-                  <TableCell className="font-mono text-xs">{b.id}</TableCell>
-                  <TableCell>{b.customer}</TableCell>
-                  <TableCell>{b.provider}</TableCell>
-                  <TableCell>{b.service}</TableCell>
-                  <TableCell>{b.city}</TableCell>
-                  <TableCell>Rs {b.price.toLocaleString()}</TableCell>
-                  <TableCell>Rs {b.commission.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={statusColor[b.status]}>{b.status}</Badge>
-                  </TableCell>
-                  <TableCell className="text-xs">{b.date}</TableCell>
+          {bookings.length === 0 ? (
+            <p className="p-6 text-center text-muted-foreground">No bookings yet</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Commission</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {bookings.map((b) => (
+                  <TableRow key={b.id}>
+                    <TableCell className="font-mono text-xs">{b.booking_number}</TableCell>
+                    <TableCell>{b.services?.name || "—"}</TableCell>
+                    <TableCell>{b.city || "—"}</TableCell>
+                    <TableCell>Rs {(b.final_price || b.proposed_price || 0).toLocaleString()}</TableCell>
+                    <TableCell>Rs {(b.commission || 0).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className={statusColor[b.status] || ""}>{b.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs">{new Date(b.created_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
